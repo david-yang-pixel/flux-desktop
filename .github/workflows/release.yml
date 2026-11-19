@@ -68,6 +68,7 @@ jobs:
 
       - name: Build DMGs (arm64 + x64)
         run: |
+          npm run icon
           npx electron-builder --mac dmg --arm64 --x64 --publish never
           ls -lh dist/*.dmg
 

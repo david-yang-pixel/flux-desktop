@@ -7,6 +7,8 @@
   "author": "LangGenius",
   "scripts": {
     "start": "electron .",
+    "icon": "node scripts/render-icon.js",
+    "predist": "node scripts/render-icon.js",
     "dist": "electron-builder --mac dmg --arm64 --x64 --publish never",
     "test": "node --test test/*.test.js"
   },
@@ -33,6 +35,7 @@
     "afterPack": "scripts/sign.js"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "electron": "33.4.11",
     "electron-builder": "25.1.8"
   }

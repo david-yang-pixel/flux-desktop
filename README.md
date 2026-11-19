@@ -62,6 +62,7 @@ base64 -i Flux-Signing.p12 | pbcopy
 npm install
 npm start          # 本地运行
 npm test           # 单元测试
+npm run icon       # 由 build/icon.svg 生成 build/icon.png（npm run dist 会自动执行）
 npm run dist       # 在 Mac 上构建 DMG，产物在 dist/
 ```
 
@@ -73,6 +74,7 @@ electron-builder 在 Linux 上只能生成 `.app`，DMG 可以用 `scripts/mkdmg
 
 ```bash
 npm install
+npm run icon
 npx electron-builder --mac dir --arm64 --x64
 python3 -m venv .venv && .venv/bin/pip install pycdlib
 .venv/bin/python scripts/mkdmg.py dist/mac-arm64/Flux.app dist/Flux-1.0.0-arm64.dmg Flux
@@ -87,9 +89,9 @@ updater.js               应用内更新：检查 → 下载 DMG → 校验签�
 update-utils.js          更新相关的纯函数（版本比较、选择安装包、签名要求解析）
 test/                    单元测试
 scripts/sign.js          electron-builder afterPack 钩子：用 SIGN_IDENTITY 或临时签名签 .app
-scripts/make-icon.js     用 Playwright 渲染 build/icon.png
+scripts/render-icon.js   用 resvg 把 build/icon.svg 渲染成 build/icon.png（构建时自动生成，不入库）
 scripts/mkdmg.py         在 Linux 上把 .app 打成 DMG
-build/icon.png           应用图标（1024×1024）
+build/icon.svg           应用图标源文件
 .github/workflows/release.yml  自动构建与发布
 ```
 
