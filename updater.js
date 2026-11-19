@@ -1,5 +1,5 @@
 // In-app updater based on GitHub Releases (same flow as SimpleShot's Updater.swift):
-// check → download DMG → verify bundle id / version / signing certificate → replace & relaunch.
+// check → download DMG over HTTPS → verify bundle id / version / code signature → replace & relaunch.
 const { app, dialog, shell, net, BrowserWindow } = require('electron');
 const { execFile, spawn } = require('child_process');
 const { promisify } = require('util');
@@ -130,9 +130,6 @@ async function installProblem(appPath) {
   } catch {
     return `没有权限替换 ${appPath}。`;
   }
-  if (u.isAdHocRequirement(await currentRequirement(appPath))) {
-    return '当前版本使用临时签名，无法自动更新。手动安装一次新版本后，以后即可在应用内直接更新。';
-  }
   return null;
 }
 
@@ -213,7 +210,7 @@ async function plistValue(appPath, key) {
   return stdout.trim();
 }
 
-/** Bundle id + version must match, and the signature must satisfy the running app's designated requirement. */
+/** Bundle id + version must match and the code signature must be intact. */
 async function verify(staged, currentApp, expectedVersion) {
   try {
     const [id, curId, ver] = await Promise.all([
@@ -225,12 +222,16 @@ async function verify(staged, currentApp, expectedVersion) {
   } catch {
     throw new Error('安装包的版本或标识不正确');
   }
+  // Builds are ad-hoc signed (no certificate), so we can only check that the bundle
+  // is intact. If the running app is ever signed with a real certificate, also
+  // require the update to come from the same certificate.
   const req = await currentRequirement(currentApp);
-  if (u.isAdHocRequirement(req)) throw new Error('安装包签名校验失败（与当前版本的签名证书不一致）');
+  const args = ['--verify', '--deep', '--strict'];
+  if (!u.isAdHocRequirement(req)) args.push('-R', `=${req}`);
   try {
-    await execFileP('/usr/bin/codesign', ['--verify', '--deep', '--strict', '-R', `=${req}`, staged]);
+    await execFileP('/usr/bin/codesign', [...args, staged]);
   } catch {
-    throw new Error('安装包签名校验失败（与当前版本的签名证书不一致）');
+    throw new Error('安装包签名校验失败（文件不完整或已被修改）');
   }
 }
 

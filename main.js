@@ -27,6 +27,11 @@ const CHROME_UA =
   `(KHTML, like Gecko) Chrome/${process.versions.chrome} Safari/537.36`;
 app.userAgentFallback = CHROME_UA;
 
+// Builds are ad-hoc signed, so the code signature changes with every update and
+// macOS would ask for the login password to unlock "Flux Safe Storage" in the
+// Keychain after each update. Keep Chromium's cookie key out of the Keychain.
+app.commandLine.appendSwitch('use-mock-keychain');
+
 let win;
 
 function createWindow() {

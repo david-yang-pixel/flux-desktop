@@ -1,7 +1,6 @@
 // electron-builder afterPack hook: sign the .app before the DMG is built.
-// SIGN_IDENTITY (set by CI from the self-signed certificate in repo secrets) keeps the
-// signature identical across builds, which the in-app updater relies on. Without it the
-// app is ad-hoc signed (runs on Apple Silicon, but can't self-update).
+// Ad-hoc signature by default (no certificate needed; required to run on Apple Silicon
+// and lets the updater check the bundle is intact). Set SIGN_IDENTITY to use a certificate.
 const { execFileSync } = require('child_process');
 const path = require('path');
 
