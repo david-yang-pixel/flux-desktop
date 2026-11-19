@@ -1,5 +1,7 @@
 const { app, BrowserWindow, Menu, shell, session } = require('electron');
+const path = require('path');
 const updater = require('./updater');
+const notifier = require('./notifier');
 
 const HOME_URL = 'https://mail.langgenius.ai/';
 
@@ -44,6 +46,8 @@ function createWindow() {
     show: false,
     webPreferences: {
       partition: 'persist:flux', // keep login cookies between launches
+      preload: path.join(__dirname, 'preload.js'), // reports sidebar unread counts for notifications
+      backgroundThrottling: false, // keep the page live while hidden so new mail is noticed
       contextIsolation: true,
       nodeIntegration: false,
       spellcheck: true,
@@ -117,6 +121,7 @@ function buildMenu() {
         { role: 'togglefullscreen' },
       ],
     },
+    notifier.menuTemplate(),
     { role: 'windowMenu' },
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
@@ -131,6 +136,7 @@ if (!app.requestSingleInstanceLock()) {
 
   app.whenReady().then(() => {
     session.fromPartition('persist:flux').setUserAgent(CHROME_UA);
+    notifier.init({ getWindow: () => win, onGroupsChanged: buildMenu });
     buildMenu();
     createWindow();
     updater.startAutomaticChecks();

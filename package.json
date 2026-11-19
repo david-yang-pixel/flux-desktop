@@ -28,6 +28,9 @@
     },
     "files": [
       "main.js",
+      "preload.js",
+      "notifier.js",
+      "notify-utils.js",
       "updater.js",
       "update-utils.js",
       "package.json"
