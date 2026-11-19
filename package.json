@@ -1,0 +1,39 @@
+{
+  "name": "flux-desktop",
+  "productName": "Flux",
+  "version": "1.0.0",
+  "description": "Flux by Dify desktop wrapper",
+  "main": "main.js",
+  "author": "LangGenius",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac dmg --arm64 --x64 --publish never",
+    "test": "node --test test/*.test.js"
+  },
+  "build": {
+    "appId": "ai.langgenius.flux.desktop",
+    "productName": "Flux",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.png",
+      "target": [
+        "dmg"
+      ],
+      "identity": null
+    },
+    "dmg": {
+      "artifactName": "Flux-${version}-${arch}.${ext}"
+    },
+    "files": [
+      "main.js",
+      "updater.js",
+      "update-utils.js",
+      "package.json"
+    ],
+    "afterPack": "scripts/sign.js"
+  },
+  "devDependencies": {
+    "electron": "33.4.11",
+    "electron-builder": "25.1.8"
+  }
+}
